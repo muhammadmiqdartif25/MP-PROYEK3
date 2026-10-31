@@ -14,11 +14,19 @@
             </a>
 
             @auth
+                <nav class="main-nav">
+                    <a href="{{ route('home.index') }}" class="nav-link">Beranda</a>
+                    <a href="{{ route('reports.index') }}" class="nav-link">Laporan</a>
+                    @can('manage-areas')
+                        <a href="{{ route('area.index') }}" class="nav-link">Wilayah</a>
+                    @endcan
+                </nav>
+
                 <div class="user-menu">
                     <span>{{ auth()->user()->full_name }}</span>
                     <span class="badge">{{ auth()->user()->role }}</span>
 
-                    <form method="POST" action="{{ route('login.logout') }}">
+                    <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="btn-link">Logout</button>
                     </form>
@@ -30,6 +38,10 @@
     </nav>
 
     <main class="site-main">
+        @if (session('status'))
+            <p class="alert" role="status">{{ session('status') }}</p>
+        @endif
+
         @yield('content')
     </main>
 

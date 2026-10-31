@@ -9,6 +9,6 @@
     </p>
 
     <p class="mt-4 text-muted">
-        Menu laporan akan tersedia setelah fitur pelaporan dibuat.
+        Buka menu Laporan untuk melihat laporan yang masuk beserta status terbarunya.
     </p>
 @endsection

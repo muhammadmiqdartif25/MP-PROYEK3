@@ -7,7 +7,7 @@
         <h1 class="card__title">Masuk</h1>
         <p class="card__hint">Gunakan akun yang diberikan koordinator.</p>
 
-        <form method="POST" action="{{ route('login.submit') }}">
+        <form method="POST" action="{{ route('login') }}">
             @csrf
 
             <div class="form-group">
