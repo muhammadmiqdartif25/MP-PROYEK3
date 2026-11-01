@@ -25,6 +25,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/area', [AreaController::class, 'index'])->name('area.index');
     });
 
+    Route::get('/area/{area}/info', [AreaController::class, 'info'])->name('area.info');
+
     Route::get('/laporan', [ReportController::class, 'index'])->name('reports.index');
 
     Route::middleware('can:submit-report')->group(function () {

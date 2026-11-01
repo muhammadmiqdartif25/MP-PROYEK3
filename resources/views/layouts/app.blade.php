@@ -48,5 +48,7 @@
     <footer class="site-footer">
         &copy; 2026 Karhutla Care
     </footer>
+
+    <script src="{{ asset('js/area-info.js') }}" defer></script>
 </body>
 </html>
