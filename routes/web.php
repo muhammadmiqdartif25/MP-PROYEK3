@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AreaController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReportReviewController;
@@ -17,9 +18,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/home', function () {
-        return view('home.index');
-    })->name('home.index');
+    Route::get('/home', [HomeController::class, 'index'])->name('home.index');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     Route::middleware('can:manage-areas')->group(function () {
