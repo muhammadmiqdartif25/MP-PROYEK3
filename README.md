@@ -195,8 +195,6 @@ Perpindahan ke `diteruskan` punya syarat tambahan: laporan harus sudah memiliki 
 
 Relasi utama: satu pengguna punya banyak laporan, satu wilayah punya banyak laporan, dan satu laporan punya banyak catatan peninjauan serta banyak riwayat status. Bukti disimpan sebagai satu kolom `evidence_path` opsional di tabel `reports`, sehingga satu laporan paling banyak punya satu bukti tanpa tabel terpisah.
 
-Tabel bawaan Laravel (`sessions`, `password_reset_tokens`, `cache`, `cache_locks`, `jobs`, `job_batches`, `failed_jobs`, `migrations`) ikut ada sesuai kebutuhan framework.
-
 ## Bukti unggahan
 
 | Aturan          | Nilai                                              |
@@ -221,21 +219,11 @@ Memilih wilayah pada dropdown Wilayah di halaman rekap (`/home`) atau di halaman
 GET /area/{area}/info
 ```
 
-Ringkasan ini hanya tersedia untuk relawan dan koordinator, sesuai Gate `review-report`. Panel ringkasan muncul di dua tempat, yaitu halaman rekap `/home` dan halaman daftar laporan `/laporan`; panel tidak ada di form Buat Laporan. Halaman daftar laporan juga menyembunyikan filter Wilayah dari pelapor, karena daftar mereka sudah hanya berisi laporan miliknya sendiri. Halaman Data Wilayah di `/area` juga tidak memakai endpoint ini. Permintaan langsung ke endpoint oleh pelapor ditolak dengan 403.
-
-Endpoint mengembalikan JSON berisi nama wilayah, `active_count` (jumlah laporan berstatus `baru` + `diperiksa` + `diteruskan`), dan maksimal 3 laporan terbaru di wilayah itu. Panel ringkasan diperbarui tanpa memuat ulang halaman, dan panel punya tampilan untuk keadaan memuat, kosong, dan gagal.
-
-Mengubah dropdown hanya memperbarui panel ringkasan. Di `/home`, tabel dan angka ringkasan baru tersaring setelah tombol "Terapkan" ditekan; di `/laporan`, tabel laporan juga baru tersaring setelah "Terapkan" ditekan, sehingga memilih wilayah tidak mengirim form.
-
-Endpoint ini menjalankan tiga query: route model binding, satu `count()`, dan satu `get()->take(3)`. Jumlah query tetap sama berapa pun banyak laporan di wilayah tersebut.
-
-Untuk mengamati alurnya, buka DevTools lalu tab Network, buka `/home` atau `/laporan` sebagai relawan atau koordinator, pilih sebuah wilayah pada dropdown Wilayah, dan lihat permintaan ke `area/{id}/info` beserta respons JSON-nya.
-
 ## Observer
 
 `App\Observers\ReportObserver` mendengarkan event `Report::updated`. Kalau kolom `status` berubah, observer menulis satu baris ke `report_status_logs` berisi `report_id`, `user_id`, `old_status`, `new_status`, dan timestamp.
 
-Yang sengaja tidak dicatat: observer tidak menulis log saat laporan dibuat, dan tidak menulis log ketika kolom lain berubah. Tabel riwayat hanya berisi jejak perpindahan status.
+Observer mencatat riwayat perpindahan status.
 
 ## Kontak
 
