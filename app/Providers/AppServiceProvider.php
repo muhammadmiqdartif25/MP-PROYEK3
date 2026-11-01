@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Report;
 use App\Models\User;
+use App\Observers\ReportObserver;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -28,5 +30,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('manage-areas', fn (User $user): bool => $user->role === 'koordinator');
         Gate::define('submit-report', fn (User $user): bool => $user->role === 'pelapor');
         Gate::define('review-report', fn (User $user): bool => in_array($user->role, ['relawan', 'koordinator'], true));
+
+        Report::observe(ReportObserver::class);
     }
 }

@@ -5,8 +5,11 @@ namespace Database\Seeders;
 use App\Models\Area;
 use App\Models\Evidence;
 use App\Models\Report;
+use App\Models\ReportReview;
+use App\Models\ReportStatusLog;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
 class ReportSeeder extends Seeder
@@ -215,6 +218,56 @@ class ReportSeeder extends Seeder
                     ...$evidence,
                 ]);
             }
+
+            $this->seedHistory($report, $users);
+        }
+    }
+
+    /**
+     * Isi catatan peninjauan dan riwayat status yang konsisten dengan status akhir laporan.
+     *
+     * @param  Collection<string, User>  $users
+     */
+    private function seedHistory(Report $report, Collection $users): void
+    {
+        $steps = match ($report->status) {
+            'diperiksa' => [['diperiksa', 'fauzan']],
+            'diteruskan' => [['diperiksa', 'fauzan'], ['diteruskan', 'miqdar']],
+            'selesai' => [['diperiksa', 'fauzan'], ['diteruskan', 'miqdar'], ['selesai', 'miqdar']],
+            default => [],
+        };
+
+        $notes = [
+            'diperiksa' => 'Lokasi sudah dicek, titik api masih kecil dan perlu pemantauan.',
+            'diteruskan' => 'Berkas dan koordinat sudah diteruskan ke instansi terkait.',
+            'selesai' => 'Pemadaman selesai dan lokasi sudah dinyatakan aman.',
+        ];
+
+        $previousStatus = 'baru';
+        $offsetMinutes = 90;
+
+        foreach ($steps as [$newStatus, $username]) {
+            $reviewedAt = $report->created_at->copy()->addMinutes($offsetMinutes);
+
+            ReportReview::create([
+                'report_id' => $report->id,
+                'user_id' => $users[$username]->id,
+                'note' => $notes[$newStatus],
+                'created_at' => $reviewedAt,
+                'updated_at' => $reviewedAt,
+            ]);
+
+            ReportStatusLog::create([
+                'report_id' => $report->id,
+                'user_id' => $users[$username]->id,
+                'old_status' => $previousStatus,
+                'new_status' => $newStatus,
+                'created_at' => $reviewedAt,
+                'updated_at' => $reviewedAt,
+            ]);
+
+            $previousStatus = $newStatus;
+            $offsetMinutes += 120;
         }
     }
 

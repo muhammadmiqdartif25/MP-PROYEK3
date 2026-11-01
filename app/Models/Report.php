@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
@@ -59,6 +60,36 @@ class Report extends Model
     public function evidence(): HasOne
     {
         return $this->hasOne(Evidence::class);
+    }
+
+    /**
+     * @return HasMany<ReportReview, $this>
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ReportReview::class);
+    }
+
+    /**
+     * @return HasMany<ReportStatusLog, $this>
+     */
+    public function statusLogs(): HasMany
+    {
+        return $this->hasMany(ReportStatusLog::class);
+    }
+
+    /**
+     * Transisi status yang sah: hanya maju satu langkah.
+     *
+     * @return array<string, array{next: string, roles: array<int, string>}>
+     */
+    public static function transitions(): array
+    {
+        return [
+            'baru' => ['next' => 'diperiksa', 'roles' => ['relawan', 'koordinator']],
+            'diperiksa' => ['next' => 'diteruskan', 'roles' => ['koordinator']],
+            'diteruskan' => ['next' => 'selesai', 'roles' => ['koordinator']],
+        ];
     }
 
     /**

@@ -71,7 +71,7 @@ class ReportController extends Controller
     {
         $this->authorize('view', $report);
 
-        $report->load(['user', 'area', 'evidence']);
+        $report->load(['user', 'area', 'evidence', 'reviews.user', 'statusLogs.user']);
 
         $relatedReports = collect();
 

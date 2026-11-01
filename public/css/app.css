@@ -538,3 +538,49 @@ a {
 .plain-list li {
     margin-bottom: 6px;
 }
+
+/* ---------- Review notes and status history ---------- */
+
+.status-target {
+    margin: 0 0 16px;
+    font-size: 0.9375rem;
+}
+
+.meta-line {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.8125rem;
+}
+
+.status-arrow {
+    color: var(--color-muted);
+    white-space: nowrap;
+}
+
+.review-list {
+    margin: 0 0 16px;
+    padding: 0;
+    list-style: none;
+}
+
+.review-list__item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.review-list__item:first-child {
+    padding-top: 0;
+}
+
+.review-list__item:last-child {
+    border-bottom: 0;
+}
+
+.review-list__note {
+    margin: 0 0 4px;
+    white-space: pre-line;
+}
+
+.review-form {
+    margin-top: 16px;
+}

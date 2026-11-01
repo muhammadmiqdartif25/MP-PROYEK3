@@ -3,6 +3,8 @@
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReportReviewController;
+use App\Http\Controllers\ReportStatusController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -35,4 +37,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/{report}/bukti', [ReportController::class, 'evidence'])->name('reports.evidence')->whereNumber('report');
     Route::get('/laporan/{report}/edit', [ReportController::class, 'edit'])->name('reports.edit')->whereNumber('report');
     Route::put('/laporan/{report}', [ReportController::class, 'update'])->name('reports.update')->whereNumber('report');
+    Route::patch('/laporan/{report}/status', [ReportStatusController::class, 'update'])->name('reports.status')->whereNumber('report');
+    Route::post('/laporan/{report}/ulasan', [ReportReviewController::class, 'store'])->name('reports.review')->middleware('can:review-report')->whereNumber('report');
 });
