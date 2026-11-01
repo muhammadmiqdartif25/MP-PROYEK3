@@ -19,12 +19,10 @@ class ReportStatusController extends Controller
         $user = $request->user();
         $transition = Report::transitions()[$report->status] ?? null;
 
-        // BR-03: hanya peran yang tercantum pada transisi ini yang boleh memproses.
         if ($transition === null || ! in_array($user->role, $transition['roles'], true)) {
             abort(403);
         }
 
-        // BR-02: status hanya boleh maju satu langkah, tanpa lompatan atau mundur.
         if ($request->input('status') !== $transition['next']) {
             throw ValidationException::withMessages([
                 'status' => 'Status hanya dapat maju satu langkah dari status saat ini.',
@@ -32,7 +30,7 @@ class ReportStatusController extends Controller
         }
 
         // BR-04: laporan tanpa bukti tidak boleh diteruskan.
-        if ($transition['next'] === 'diteruskan' && ! $report->evidence()->exists()) {
+        if ($transition['next'] === 'diteruskan' && ! $report->hasEvidence()) {
             throw ValidationException::withMessages([
                 'status' => 'Laporan tanpa bukti tidak dapat diteruskan.',
             ])->errorBag('statusForm');

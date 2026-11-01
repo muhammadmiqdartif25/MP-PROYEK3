@@ -71,7 +71,7 @@ class ReportController extends Controller
     {
         $this->authorize('view', $report);
 
-        $report->load(['user', 'area', 'evidence', 'reviews.user', 'statusLogs.user']);
+        $report->load(['user', 'area', 'reviews.user', 'statusLogs.user']);
 
         $relatedReports = collect();
 
@@ -120,13 +120,11 @@ class ReportController extends Controller
     {
         $this->authorize('view', $report);
 
-        $evidence = $report->evidence;
+        abort_unless($report->hasEvidence(), 404, 'Laporan ini tidak memiliki bukti.');
 
-        abort_if($evidence === null, 404, 'Laporan ini tidak memiliki bukti.');
+        abort_unless(Storage::disk('local')->exists($report->evidence_path), 404, 'Berkas bukti tidak ditemukan.');
 
-        abort_unless(Storage::disk('local')->exists($evidence->file_path), 404, 'Berkas bukti tidak ditemukan.');
-
-        return Storage::disk('local')->download($evidence->file_path, $evidence->original_name);
+        return Storage::disk('local')->download($report->evidence_path);
     }
 
     /**
@@ -140,11 +138,7 @@ class ReportController extends Controller
 
         $path = $file->store('evidence', 'local');
 
-        $report->evidence()->updateOrCreate([], [
-            'file_path' => $path,
-            'original_name' => $file->getClientOriginalName(),
-            'mime_type' => $file->getMimeType() ?? 'application/octet-stream',
-            'file_size' => $file->getSize(),
-        ]);
+        $report->evidence_path = $path;
+        $report->save();
     }
 }

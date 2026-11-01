@@ -43,8 +43,8 @@
 
             <dt>Bukti</dt>
             <dd>
-                @if ($report->evidence)
-                    <a href="{{ route('reports.evidence', $report) }}">Unduh Bukti ({{ $report->evidence->original_name }})</a>
+                @if ($report->hasEvidence())
+                    <a href="{{ route('reports.evidence', $report) }}">Unduh Bukti</a>
                 @else
                     <span class="text-muted">Tidak ada bukti terlampir.</span>
                 @endif

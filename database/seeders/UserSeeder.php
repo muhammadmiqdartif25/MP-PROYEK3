@@ -7,9 +7,6 @@ use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     private $users = [
         [
             'full_name' => 'Muhammad Miqdar Salim',

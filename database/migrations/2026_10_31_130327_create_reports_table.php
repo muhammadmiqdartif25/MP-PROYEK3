@@ -24,8 +24,8 @@ return new class extends Migration
             $table->string('status', 20)->default('baru');
             $table->string('forwarded_to', 150)->nullable();
             $table->text('forwarding_note')->nullable();
+            $table->string('evidence_path')->nullable();
             $table->timestamps();
-
             $table->index('status');
             $table->index(['area_id', 'status']);
             $table->index(['area_id', 'created_at']);

@@ -23,19 +23,21 @@
                    placeholder="Judul atau deskripsi">
         </div>
 
-        <div class="form-group">
-            <label for="area_id" class="form-label">Wilayah</label>
-            <select id="area_id" name="area_id" class="form-input"
-                    data-area-info="area-info-panel-index"
-                    data-area-info-url-template="{{ url('/area/__ID__/info') }}">
-                <option value="">Semua wilayah</option>
-                @foreach ($areas as $area)
-                    <option value="{{ $area->id }}" @selected((string) request('area_id') === (string) $area->id)>
-                        {{ $area->name }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
+        @can('review-report')
+            <div class="form-group">
+                <label for="area_id" class="form-label">Wilayah</label>
+                <select id="area_id" name="area_id" class="form-input"
+                        data-area-info="area-info-panel-index"
+                        data-area-info-url-template="{{ url('/area/__ID__/info') }}">
+                    <option value="">Semua wilayah</option>
+                    @foreach ($areas as $area)
+                        <option value="{{ $area->id }}" @selected((string) request('area_id') === (string) $area->id)>
+                            {{ $area->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        @endcan
 
         <div class="form-group">
             <label for="status" class="form-label">Status</label>
@@ -55,9 +57,11 @@
         </div>
     </form>
 
-    <div id="area-info-panel-index" class="area-info" aria-live="polite">
-        <p class="area-info__hint text-muted">Pilih wilayah untuk melihat ringkasan.</p>
-    </div>
+    @can('review-report')
+        <div id="area-info-panel-index" class="area-info" aria-live="polite">
+            <p class="area-info__hint text-muted">Pilih wilayah untuk melihat ringkasan.</p>
+        </div>
+    @endcan
 
     <div class="table-wrap">
         <table class="table">

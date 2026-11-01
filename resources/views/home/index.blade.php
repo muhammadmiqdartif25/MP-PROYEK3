@@ -16,7 +16,9 @@
         <form method="GET" action="{{ route('home.index') }}" class="filter-bar" role="search">
             <div class="form-group">
                 <label for="area_id" class="form-label">Wilayah</label>
-                <select id="area_id" name="area_id" class="form-input">
+                <select id="area_id" name="area_id" class="form-input"
+                        data-area-info="area-info-panel-home"
+                        data-area-info-url-template="{{ url('/area/__ID__/info') }}">
                     <option value="">Semua wilayah</option>
                     @foreach ($areas as $area)
                         <option value="{{ $area->id }}" @selected($areaId === $area->id)>
@@ -31,6 +33,10 @@
                 <a href="{{ route('home.index') }}">Reset</a>
             </div>
         </form>
+
+        <div id="area-info-panel-home" class="area-info" aria-live="polite">
+            <p class="area-info__hint text-muted">Pilih wilayah untuk melihat ringkasan.</p>
+        </div>
 
         <dl class="stat-row">
             <div class="stat">

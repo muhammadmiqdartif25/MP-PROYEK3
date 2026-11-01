@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Area;
-use App\Models\Evidence;
 use App\Models\Report;
 use App\Models\ReportReview;
 use App\Models\ReportStatusLog;
@@ -14,14 +13,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ReportSeeder extends Seeder
 {
-    /**
-     * Laporan demo yang menutup keempat status dan beberapa wilayah.
-     *
-     * Catatan aturan data:
-     * - status diteruskan/selesai selalu punya bukti dan forwarded_to;
-     * - satu laporan diperiksa sengaja tanpa bukti (uji BR-04);
-     * - satu laporan baru milik rafli dipertahankan (uji BR-01).
-     */
     private array $reports = [
         [
             'username' => 'rafli',
@@ -81,11 +72,7 @@ class ReportSeeder extends Seeder
             'status' => 'diteruskan',
             'forwarded_to' => 'BPBD Kabupaten',
             'forwarding_note' => 'Sudah dikoordinasikan dengan pos BPBD terdekat untuk pengecekan lokasi.',
-            'evidence' => [
-                'file_path' => 'evidence/dummy-1.jpg',
-                'original_name' => 'semak-jalan-lintas.jpg',
-                'mime_type' => 'image/jpeg',
-            ],
+            'evidence_path' => 'evidence/dummy-1.jpg',
         ],
         [
             'username' => 'rafli',
@@ -99,11 +86,7 @@ class ReportSeeder extends Seeder
             'status' => 'diteruskan',
             'forwarded_to' => 'Manggala Agni Daerah Operasi Sumsel',
             'forwarding_note' => 'Tim Manggala Agni dijadwalkan turun ke lokasi pagi berikutnya.',
-            'evidence' => [
-                'file_path' => 'evidence/dummy-2.png',
-                'original_name' => 'parit-blok-c.png',
-                'mime_type' => 'image/png',
-            ],
+            'evidence_path' => 'evidence/dummy-2.png',
         ],
         [
             'username' => 'fauzan',
@@ -117,11 +100,7 @@ class ReportSeeder extends Seeder
             'status' => 'selesai',
             'forwarded_to' => 'BPBD Kabupaten',
             'forwarding_note' => 'Pemadaman selesai, lahan sudah dibasahi dan dipantau dua hari.',
-            'evidence' => [
-                'file_path' => 'evidence/dummy-3.pdf',
-                'original_name' => 'berita-acara-gambut.pdf',
-                'mime_type' => 'application/pdf',
-            ],
+            'evidence_path' => 'evidence/dummy-3.pdf',
         ],
         [
             'username' => 'fauzan',
@@ -135,11 +114,7 @@ class ReportSeeder extends Seeder
             'status' => 'selesai',
             'forwarded_to' => 'Manggala Agni Daerah Operasi Sumsel',
             'forwarding_note' => 'Patroli lanjutan memastikan tidak ada titik panas tersisa.',
-            'evidence' => [
-                'file_path' => 'evidence/dummy-4.jpg',
-                'original_name' => 'bekas-terbakar-aur.jpg',
-                'mime_type' => 'image/jpeg',
-            ],
+            'evidence_path' => 'evidence/dummy-4.jpg',
         ],
         [
             'username' => 'rafli',
@@ -164,11 +139,7 @@ class ReportSeeder extends Seeder
             'status' => 'selesai',
             'forwarded_to' => 'BPBD Kabupaten',
             'forwarding_note' => 'Api dipadamkan petugas bersama warga, gardu listrik aman.',
-            'evidence' => [
-                'file_path' => 'evidence/dummy-5.jpg',
-                'original_name' => 'semak-gardu.jpg',
-                'mime_type' => 'image/jpeg',
-            ],
+            'evidence_path' => 'evidence/dummy-5.jpg',
         ],
         [
             'username' => 'fauzan',
@@ -181,11 +152,7 @@ class ReportSeeder extends Seeder
             'longitude' => 104.73060000,
             'status' => 'diperiksa',
             'forwarded_to' => null,
-            'evidence' => [
-                'file_path' => 'evidence/dummy-6.jpg',
-                'original_name' => 'gudang-pupuk.jpg',
-                'mime_type' => 'image/jpeg',
-            ],
+            'evidence_path' => 'evidence/dummy-6.jpg',
         ],
     ];
 
@@ -195,6 +162,10 @@ class ReportSeeder extends Seeder
         $areas = Area::all()->keyBy('name');
 
         foreach ($this->reports as $data) {
+            if (isset($data['evidence_path'])) {
+                $this->writeEvidenceFile($data['evidence_path']);
+            }
+
             $report = Report::create([
                 'user_id' => $users[$data['username']]->id,
                 'area_id' => $areas[$data['area']]->id,
@@ -207,27 +178,13 @@ class ReportSeeder extends Seeder
                 'status' => $data['status'],
                 'forwarded_to' => $data['forwarded_to'] ?? null,
                 'forwarding_note' => $data['forwarding_note'] ?? null,
+                'evidence_path' => $data['evidence_path'] ?? null,
             ]);
-
-            if (isset($data['evidence'])) {
-                $evidence = $data['evidence'];
-                $evidence['file_size'] = $this->writeEvidenceFile($evidence['file_path'], $evidence['mime_type']);
-
-                Evidence::create([
-                    'report_id' => $report->id,
-                    ...$evidence,
-                ]);
-            }
 
             $this->seedHistory($report, $users);
         }
     }
 
-    /**
-     * Isi catatan peninjauan dan riwayat status yang konsisten dengan status akhir laporan.
-     *
-     * @param  Collection<string, User>  $users
-     */
     private function seedHistory(Report $report, Collection $users): void
     {
         $steps = match ($report->status) {
@@ -271,23 +228,16 @@ class ReportSeeder extends Seeder
         }
     }
 
-    /**
-     * Tulis berkas bukti contoh ke disk local agar tautan unduh tidak menunjuk berkas hilang.
-     */
-    private function writeEvidenceFile(string $path, string $mimeType): int
+    private function writeEvidenceFile(string $path): void
     {
-        $contents = $this->evidenceContents($mimeType);
-
-        Storage::disk('local')->put($path, $contents);
-
-        return strlen($contents);
+        Storage::disk('local')->put($path, $this->evidenceContents($path));
     }
 
-    private function evidenceContents(string $mimeType): string
+    private function evidenceContents(string $path): string
     {
-        return match ($mimeType) {
-            'application/pdf' => $this->placeholderPdf(),
-            'image/png' => base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='),
+        return match (pathinfo($path, PATHINFO_EXTENSION)) {
+            'pdf' => $this->placeholderPdf(),
+            'png' => base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='),
             default => "\xFF\xD8\xFF\xE0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00\xFF\xD9",
         };
     }

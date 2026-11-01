@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\Auth;
 
 class ReportObserver
 {
-    /**
-     * Catat riwayat perubahan status saja, tanpa data sensitif lain.
-     */
     public function updated(Report $report): void
     {
         if (! $report->wasChanged('status')) {

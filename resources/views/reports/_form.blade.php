@@ -43,8 +43,6 @@
         <div class="form-group">
             <label for="area_id" class="form-label">Wilayah</label>
             <select id="area_id" name="area_id" class="form-input" required
-                    data-area-info="area-info-panel"
-                    data-area-info-url-template="{{ url('/area/__ID__/info') }}"
                     @error('area_id') aria-invalid="true" aria-describedby="area_id-error" @enderror>
                 <option value="">Pilih wilayah</option>
                 @foreach ($areas as $area)
@@ -56,12 +54,6 @@
             @error('area_id')
                 <p class="form-error" id="area_id-error">{{ $message }}</p>
             @enderror
-        </div>
-
-        <div class="form-group form-grid__full">
-            <div id="area-info-panel" class="area-info" aria-live="polite">
-                <p class="area-info__hint text-muted">Pilih wilayah untuk melihat ringkasan.</p>
-            </div>
         </div>
 
         <div class="form-group form-grid__full">
@@ -102,10 +94,9 @@
                 <p class="form-error" id="evidence-error">{{ $message }}</p>
             @enderror
 
-            @if ($report?->evidence)
+            @if ($report?->hasEvidence())
                 <p class="form-hint">
-                    Bukti saat ini: {{ $report->evidence->original_name }}.
-                    Unggah berkas baru untuk menggantinya.
+                    Berkas bukti sudah terlampir. Unggah berkas baru untuk menggantinya.
                 </p>
             @endif
         </div>
